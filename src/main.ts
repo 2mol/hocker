@@ -7,14 +7,9 @@ import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js
 
 // -------------------- Config --------------------
 const debug = false;
-const showTestCube = false;
 const loadStool = true;
 const startOffset = 0.18; // fraction of full turntable sweep
 const endOffset   = 0.91;
-
-// Feature toggles
-const useScaledSilhouette = true; // fast & robust silhouette
-const silhouetteScale = 1.21;     // 1.005–1.02 (increase for thicker outline)
 
 // -------------------- Canvas / Renderer --------------------
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -94,52 +89,6 @@ window.addEventListener('resize', () => {
 // -------------------- Debug axes --------------------
 if (debug) scene.add(new THREE.AxesHelper(50));
 
-// -------------------- Fast silhouette helper --------------------
-function addScaledOutlineClone(mesh: THREE.Mesh, scale = silhouetteScale, color = 0x000000) {
-  const mat = new THREE.MeshBasicMaterial({
-    color,
-    side: THREE.BackSide,
-    depthTest: true,
-    depthWrite: false,
-    polygonOffset: true,
-    polygonOffsetFactor: 2,
-    polygonOffsetUnits: 2,
-  });
-  const outline = new THREE.Mesh(mesh.geometry, mat);
-  outline.renderOrder = 0;           // draw before fill+lines
-  outline.scale.setScalar(scale);    // uniform “inflation”
-  outline.userData.__isOutline = true; // mark so we never process it as a fill
-  mesh.add(outline);
-}
-
-// -------------------- Optional test cube --------------------
-if (showTestCube) {
-  const geometry = new THREE.BoxGeometry(30, 30, 30);
-  const fill = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  const cube = new THREE.Mesh(geometry, fill);
-  cube.renderOrder = 1;
-  scene.add(cube);
-
-  if (useScaledSilhouette) addScaledOutlineClone(cube);
-
-  const edges = new THREE.EdgesGeometry(geometry);
-  const segGeom = new LineSegmentsGeometry().fromEdgesGeometry(edges);
-  const segMat = new LineMaterial({
-    color: 0x000000,
-    linewidth: 1.25, // screen pixels
-  }) as LineMatWithRes;
-  segMat.resolution.set(renderer.domElement.width, renderer.domElement.height);
-  lineMaterials.push(segMat);
-
-  const wire = new LineSegments2(segGeom, segMat);
-  wire.renderOrder = 2;
-  scene.add(wire);
-
-  fill.polygonOffset = true;
-  fill.polygonOffsetFactor = 1;
-  fill.polygonOffsetUnits = 1;
-}
-
 // -------------------- Load model & apply “ink” edges (TWO-PASS) --------------------
 if (loadStool) {
   const loader = new OBJLoader();
@@ -165,15 +114,12 @@ if (loadStool) {
         child.material = fill;
         child.renderOrder = 1;
 
-        // Fast silhouette (one extra draw per mesh)
-        // if (useScaledSilhouette) addScaledOutlineClone(child);
-
         // Angular edges only (hide tessellation)
-        const edges = new THREE.EdgesGeometry(child.geometry, 11); // 10–25 works; 20 hides most tessellation
+        const edges = new THREE.EdgesGeometry(child.geometry, 11); // 10-25 works; 20 hides most tessellation
         const lineGeom = new LineSegmentsGeometry().fromEdgesGeometry(edges);
         const lineMat = new LineMaterial({
           color: 0x000000,
-          linewidth: 1.25, // screen pixels; tweak 1.0–2.0
+          linewidth: 0.5, // screen pixels; tweak 1.0-2.0
         }) as LineMatWithRes;
 
         lineMat.resolution.set(renderer.domElement.width, renderer.domElement.height);
