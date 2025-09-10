@@ -33,9 +33,12 @@ camera.position.z = initialHeight;
 camera.up.set(0, 0, 1); // Set Z as up instead of Y
 camera.lookAt(0, 0, 0);
 
-// Simple renderer
+// Renderer with 2x supersampling + cylinder lines
+const supersample = 2;
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(window.innerWidth * supersample, window.innerHeight * supersample);
+canvas.style.width = window.innerWidth + 'px';
+canvas.style.height = window.innerHeight + 'px';
 
 // Debug: Add axis helper
 if (debug) {
@@ -80,9 +83,33 @@ if (loadStool) {
 
         // Add black edges with angle threshold to hide tessellation
         const edges = new THREE.EdgesGeometry(child.geometry, 20); // Only show edges > 20 degrees
-        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-        const wireframe = new THREE.LineSegments(edges, lineMaterial);
-        object.add(wireframe);
+        
+        // Convert edges to thin rectangular meshes for better anti-aliasing
+        const positions = edges.attributes.position.array;
+        const lineThickness = 0.06; // Thickness of line meshes
+        
+        for (let i = 0; i < positions.length; i += 6) { // Each line segment has 2 vertices (6 values)
+          const start = new THREE.Vector3(positions[i], positions[i+1], positions[i+2]);
+          const end = new THREE.Vector3(positions[i+3], positions[i+4], positions[i+5]);
+          
+          // Create a thin cylinder between start and end points
+          const direction = new THREE.Vector3().subVectors(end, start);
+          const length = direction.length();
+          
+          const cylinderGeometry = new THREE.CylinderGeometry(
+            lineThickness, lineThickness, length, 4
+          );
+          const cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+          const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+          
+          // Position and orient the cylinder
+          const midpoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+          cylinder.position.copy(midpoint);
+          cylinder.lookAt(end);
+          cylinder.rotateX(Math.PI / 2);
+          
+          object.add(cylinder);
+        }
       }
     });
 
