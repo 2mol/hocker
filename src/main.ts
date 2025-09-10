@@ -74,9 +74,13 @@ window.addEventListener('scroll', () => {
   // Turntable rotation around Z axis (vertical)
   const angle = initialAngle + (scrollPercent * Math.PI * 2);
   
+  // Tilt camera down to look underneath (1.5x speed)
+  const heightRange = 80; // From +40 to -40
+  const cameraHeight = 50 - (scrollPercent * heightRange);
+  
   camera.position.x = Math.cos(angle) * radius;
   camera.position.y = Math.sin(angle) * radius;
-  camera.position.z = 50; // Keep same height for now
+  camera.position.z = cameraHeight;
   
   camera.lookAt(0, 0, 0);
   
