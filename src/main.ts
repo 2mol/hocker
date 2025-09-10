@@ -35,7 +35,7 @@ if ("outputColorSpace" in renderer) {
 
 // -------------------- Scene / Camera --------------------
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xffffff);
+scene.background = new THREE.Color(0xfafafa);
 
 // Z-up (CAD-style)
 const camera = new THREE.PerspectiveCamera(
