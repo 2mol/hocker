@@ -8,10 +8,10 @@ const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
-// Orthographic camera for IKEA manual look
+// Perspective camera 
 // Using CAD convention: Z is up/down, X is left/right, Y is forward/back
 const aspect = window.innerWidth / window.innerHeight;
-const camera = new THREE.OrthographicCamera(-50 * aspect, 50 * aspect, 50, -50, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
 // Set up camera positioning
 const radius = Math.sqrt(50 * 50 + 50 * 50); // Distance from origin
