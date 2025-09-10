@@ -1,23 +1,23 @@
-import './style.css';
-import * as THREE from 'three';
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
-import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
-import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
-import hockerObjContent from './models/hocker.obj?raw';
+import "./style.css";
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
+import { LineMaterial } from "three/addons/lines/LineMaterial.js";
+import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 
 // -------------------- Config --------------------
 const debug = false;
 const loadStool = true;
 const startOffset = 0.18; // fraction of full turntable sweep
-const endOffset   = 0.91;
+const endOffset = 0.91;
 
 // -------------------- Canvas / Renderer --------------------
-const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const renderer = new THREE.WebGLRenderer({
   canvas,
   antialias: true, // simple MSAA; no postprocessing
-  powerPreference: 'high-performance',
+  powerPreference: "high-performance",
 });
 
 // Your CSS sets the canvas size. Only set the internal buffer size here.
@@ -25,7 +25,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // cap DPR for p
 renderer.setSize(window.innerWidth, window.innerHeight, false); // don't touch CSS size
 
 // Color space (handles different three versions)
-if ('outputColorSpace' in renderer) {
+if ("outputColorSpace" in renderer) {
   // @ts-ignore
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 } else {
@@ -83,7 +83,7 @@ function updateSizes() {
   camera.updateProjectionMatrix();
 }
 
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   updateSizes();
   render();
 });
@@ -91,49 +91,72 @@ window.addEventListener('resize', () => {
 // -------------------- Debug axes --------------------
 if (debug) scene.add(new THREE.AxesHelper(50));
 
-// -------------------- Load model & apply "ink" edges (TWO-PASS) --------------------
+// -------------------- Load model & apply "ink" edges --------------------
 if (loadStool) {
-  const loader = new OBJLoader();
-  const object = loader.parse(hockerObjContent);
-  // 1) Collect original meshes only (don't mutate during traversal)
-  const meshes: THREE.Mesh[] = [];
-  object.traverse((node) => {
-    // @ts-ignore isMesh is a runtime flag on three objects
-    if ((node as any).isMesh && !(node as any).userData?.__isOutline) {
-      meshes.push(node as THREE.Mesh);
-    }
-  });
+  const loader = new GLTFLoader();
+  loader.setMeshoptDecoder(MeshoptDecoder);
+  loader.load(
+    "/models/hocker.glb",
+    (gltf) => {
+      const root = gltf.scene;
 
-  // 2) Process meshes after traversal
-  for (const child of meshes) {
-    // White fill
-    const fill = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    fill.polygonOffset = true;
-    fill.polygonOffsetFactor = 1;
-    fill.polygonOffsetUnits = 1;
-    child.material = fill;
-    child.renderOrder = 1;
+      // collect meshes
+      const meshes: THREE.Mesh[] = [];
+      root.traverse((n) => {
+        const m = n as unknown as THREE.Mesh;
+        if (
+          (m as any).isMesh &&
+          !(m.userData && (m.userData as any).__isOutline)
+        )
+          meshes.push(m);
+      });
 
-    // Angular edges only (hide tessellation)
-    const edges = new THREE.EdgesGeometry(child.geometry, 11); // 10-25 works; 20 hides most tessellation
-    const lineGeom = new LineSegmentsGeometry().fromEdgesGeometry(edges);
-    const lineMat = new LineMaterial({
-      color: 0x000000,
-      linewidth: 0.5, // screen pixels; tweak 1.0-2.0
-    }) as LineMatWithRes;
+      // materials + edges
+      for (const child of meshes) {
+        // White fill
+        const fill = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        fill.polygonOffset = true;
+        fill.polygonOffsetFactor = 1;
+        fill.polygonOffsetUnits = 1;
+        child.material = fill;
+        child.renderOrder = 1;
 
-    lineMat.resolution.set(renderer.domElement.width, renderer.domElement.height);
-    lineMaterials.push(lineMat);
+        const thresholdDeg = 11;
+        const edges = new THREE.EdgesGeometry(
+          child.geometry as THREE.BufferGeometry,
+          thresholdDeg
+        );
+        const edgeVerts = edges.getAttribute("position")?.count ?? 0;
+        console.log(`edges(${child.name || "mesh"}) verts:`, edgeVerts);
 
-    const lineSegs = new LineSegments2(lineGeom, lineMat);
-    lineSegs.renderOrder = 2; // draw after fills/silhouette
-    // Attach as a sibling under the same parent, not during traversal
-    (child.parent ?? object).add(lineSegs);
-  }
+        const lineGeom = new LineSegmentsGeometry().fromEdgesGeometry(edges);
 
-  scene.add(object);
-  console.log('Stool loaded successfully (meshes:', meshes.length, ')');
-  render();
+        const lineMat = new LineMaterial({
+          color: 0x000000,
+          linewidth: 0.5,
+        }) as LineMatWithRes;
+
+        lineMat.resolution.set(
+          renderer.domElement.width,
+          renderer.domElement.height
+        );
+        lineMaterials.push(lineMat);
+
+        const lineSegs = new LineSegments2(lineGeom, lineMat);
+        lineSegs.renderOrder = 2;
+
+        child.add(lineSegs);
+      }
+      scene.add(root);
+      render();
+    },
+    (xhr) =>
+      console.log(
+        "Loading progress:",
+        xhr.total ? (xhr.loaded / xhr.total) * 100 : xhr.loaded
+      ),
+    (err) => console.error("Error loading file:", err)
+  );
 }
 
 // -------------------- Initial render --------------------
@@ -141,8 +164,11 @@ updateSizes();
 render();
 
 // -------------------- Scroll-driven turntable --------------------
-window.addEventListener('scroll', () => {
-  const maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
+window.addEventListener("scroll", () => {
+  const maxScroll = Math.max(
+    1,
+    document.body.scrollHeight - window.innerHeight
+  );
   const scrollPercent = window.scrollY / maxScroll;
 
   const animationRange = endOffset - startOffset;
