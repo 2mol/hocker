@@ -59,6 +59,16 @@ Create a mini webapp similar to skapa that displays a 3D model exported from Fus
 - Basic EdgesGeometry with angle threshold
 - Goal: Still pursuing SVG-like crispness
 
+## WIP (Work in Progress)
+**Pursuing Crisper Lines - Options to Try:**
+1. **Higher resolution rendering** - Render at 2x or 4x canvas size, then downscale
+2. **MSAA** - Multi-sample anti-aliasing (different from FXAA)
+3. **Custom line shader** - Write our own that does sub-pixel positioning
+
+## Maybe Some Day
+- **SVG overlay** - Extract 3D edges and render as actual SVG on top. Would be truly crisp (real vectors!) but requires projecting 3D edges to 2D paths every frame. Insane but would look amazing.
+- **Better export format from Fusion 360** - OBJ creates heavily tessellated meshes. glTF/GLB would be cleaner but wasn't in Fusion's export options. Maybe via plugin or newer version?
+
 ## Notes
 - Keep skapa folder untouched as reference
 - Build new webapp with identical dependencies and setup
