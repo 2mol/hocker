@@ -6,14 +6,17 @@
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  overflow: hidden;
   position: relative;
+  height: 300vh; /* Make page scrollable */
 }
 
 #canvas {
   display: block;
   width: 100vw;
   height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 #overlay {

@@ -29,5 +29,13 @@ const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
 const wireframe = new THREE.LineSegments(edges, lineMaterial);
 scene.add(wireframe);
 
-// Render once
+// Initial render
 renderer.render(scene, camera);
+
+// Rotate based on scroll
+window.addEventListener('scroll', () => {
+  const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  cube.rotation.y = scrollPercent * Math.PI * 2; // Full rotation over scroll
+  wireframe.rotation.y = scrollPercent * Math.PI * 2;
+  renderer.render(scene, camera);
+});
