@@ -41,8 +41,6 @@ body {
 }
 
 #scrollHint{
-  font-family: 'Zapf Dingbats';
-  font-size: x-large;
   position: fixed;
   left: 50%;
   bottom: calc(50px + env(safe-area-inset-bottom, 0px));
