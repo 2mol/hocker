@@ -29,6 +29,15 @@ const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
 const wireframe = new THREE.LineSegments(edges, lineMaterial);
 scene.add(wireframe);
 
+// Thicker outline using backside rendering
+const outlineGeometry = new THREE.BoxGeometry(30.3, 30.3, 30.3);
+const outlineMaterial = new THREE.MeshBasicMaterial({ 
+  color: 0x000000,
+  side: THREE.BackSide 
+});
+const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+scene.add(outline);
+
 // Initial render
 renderer.render(scene, camera);
 
@@ -37,5 +46,6 @@ window.addEventListener('scroll', () => {
   const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
   cube.rotation.y = scrollPercent * Math.PI * 2; // Full rotation over scroll
   wireframe.rotation.y = scrollPercent * Math.PI * 2;
+  outline.rotation.y = scrollPercent * Math.PI * 2;
   renderer.render(scene, camera);
 });
