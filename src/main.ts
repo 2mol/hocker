@@ -4,6 +4,7 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+import hockerObjContent from './models/hocker.obj?raw';
 
 // -------------------- Config --------------------
 const debug = false;
@@ -93,52 +94,46 @@ if (debug) scene.add(new THREE.AxesHelper(50));
 // -------------------- Load model & apply "ink" edges (TWO-PASS) --------------------
 if (loadStool) {
   const loader = new OBJLoader();
-  loader.load(
-    '/models/hocker.obj',
-    (object) => {
-      // 1) Collect original meshes only (don't mutate during traversal)
-      const meshes: THREE.Mesh[] = [];
-      object.traverse((node) => {
-        // @ts-ignore isMesh is a runtime flag on three objects
-        if ((node as any).isMesh && !(node as any).userData?.__isOutline) {
-          meshes.push(node as THREE.Mesh);
-        }
-      });
+  const object = loader.parse(hockerObjContent);
+  // 1) Collect original meshes only (don't mutate during traversal)
+  const meshes: THREE.Mesh[] = [];
+  object.traverse((node) => {
+    // @ts-ignore isMesh is a runtime flag on three objects
+    if ((node as any).isMesh && !(node as any).userData?.__isOutline) {
+      meshes.push(node as THREE.Mesh);
+    }
+  });
 
-      // 2) Process meshes after traversal
-      for (const child of meshes) {
-        // White fill
-        const fill = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        fill.polygonOffset = true;
-        fill.polygonOffsetFactor = 1;
-        fill.polygonOffsetUnits = 1;
-        child.material = fill;
-        child.renderOrder = 1;
+  // 2) Process meshes after traversal
+  for (const child of meshes) {
+    // White fill
+    const fill = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    fill.polygonOffset = true;
+    fill.polygonOffsetFactor = 1;
+    fill.polygonOffsetUnits = 1;
+    child.material = fill;
+    child.renderOrder = 1;
 
-        // Angular edges only (hide tessellation)
-        const edges = new THREE.EdgesGeometry(child.geometry, 11); // 10-25 works; 20 hides most tessellation
-        const lineGeom = new LineSegmentsGeometry().fromEdgesGeometry(edges);
-        const lineMat = new LineMaterial({
-          color: 0x000000,
-          linewidth: 0.5, // screen pixels; tweak 1.0-2.0
-        }) as LineMatWithRes;
+    // Angular edges only (hide tessellation)
+    const edges = new THREE.EdgesGeometry(child.geometry, 11); // 10-25 works; 20 hides most tessellation
+    const lineGeom = new LineSegmentsGeometry().fromEdgesGeometry(edges);
+    const lineMat = new LineMaterial({
+      color: 0x000000,
+      linewidth: 0.5, // screen pixels; tweak 1.0-2.0
+    }) as LineMatWithRes;
 
-        lineMat.resolution.set(renderer.domElement.width, renderer.domElement.height);
-        lineMaterials.push(lineMat);
+    lineMat.resolution.set(renderer.domElement.width, renderer.domElement.height);
+    lineMaterials.push(lineMat);
 
-        const lineSegs = new LineSegments2(lineGeom, lineMat);
-        lineSegs.renderOrder = 2; // draw after fills/silhouette
-        // Attach as a sibling under the same parent, not during traversal
-        (child.parent ?? object).add(lineSegs);
-      }
+    const lineSegs = new LineSegments2(lineGeom, lineMat);
+    lineSegs.renderOrder = 2; // draw after fills/silhouette
+    // Attach as a sibling under the same parent, not during traversal
+    (child.parent ?? object).add(lineSegs);
+  }
 
-      scene.add(object);
-      console.log('Stool loaded successfully (meshes:', meshes.length, ')');
-      render();
-    },
-    (progress) => console.log('Loading progress:', progress),
-    (error) => console.error('Error loading stool:', error)
-  );
+  scene.add(object);
+  console.log('Stool loaded successfully (meshes:', meshes.length, ')');
+  render();
 }
 
 // -------------------- Initial render --------------------
