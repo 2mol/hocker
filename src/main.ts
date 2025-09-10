@@ -2,6 +2,7 @@ import './style.css';
 import * as THREE from 'three';
 
 const debug = true;
+const showTestCube = true;
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
 // Scene setup
@@ -27,47 +28,41 @@ camera.lookAt(0, 0, 0);
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-// White cube
-const geometry = new THREE.BoxGeometry(30, 30, 30);
-const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
-// Black edges
-const edges = new THREE.EdgesGeometry(geometry);
-const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-const wireframe = new THREE.LineSegments(edges, lineMaterial);
-scene.add(wireframe);
-
 // Debug: Add axis helper
 if (debug) {
   const axesHelper = new THREE.AxesHelper(50);
   scene.add(axesHelper);
-  // Red = X axis, Green = Y axis, Blue = Z axis
-  
-  // Simple HTML labels
-  const overlay = document.createElement('div');
-  overlay.innerHTML = `
-    <div style="position: fixed; bottom: 20px; left: 20px; color: black; font-family: monospace;">
-      Red=X, Green=Y, Blue=Z (CAD convention: Z is up)
-    </div>
-  `;
-  document.body.appendChild(overlay);
 }
 
-// Thicker outline using backside rendering
-const outlineGeometry = new THREE.BoxGeometry(30.3, 30.3, 30.3);
-const outlineMaterial = new THREE.MeshBasicMaterial({ 
-  color: 0x000000,
-  side: THREE.BackSide 
-});
-const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
-scene.add(outline);
+// Test cube (for development)
+let cube, wireframe, outline;
+if (showTestCube) {
+  // White cube
+  const geometry = new THREE.BoxGeometry(30, 30, 30);
+  const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+
+  // Black edges
+  const edges = new THREE.EdgesGeometry(geometry);
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+  wireframe = new THREE.LineSegments(edges, lineMaterial);
+  scene.add(wireframe);
+
+  // Thicker outline using backside rendering
+  const outlineGeometry = new THREE.BoxGeometry(30.3, 30.3, 30.3);
+  const outlineMaterial = new THREE.MeshBasicMaterial({ 
+    color: 0x000000,
+    side: THREE.BackSide 
+  });
+  outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+  scene.add(outline);
+}
 
 // Initial render
 renderer.render(scene, camera);
 
-// Rotate camera around the cube based on scroll
+// Rotate camera around the object based on scroll
 window.addEventListener('scroll', () => {
   const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
   
