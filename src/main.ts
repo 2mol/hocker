@@ -1,15 +1,17 @@
 import './style.css';
 import * as THREE from 'three';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
-const debug = true;
-const showTestCube = true;
+const debug = false;
+const showTestCube = false;
+const loadStool = true;
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
 // Scene setup
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
-// Perspective camera 
+// Perspective camera
 // Using CAD convention: Z is up/down, X is left/right, Y is forward/back
 const aspect = window.innerWidth / window.innerHeight;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
@@ -51,12 +53,42 @@ if (showTestCube) {
 
   // Thicker outline using backside rendering
   const outlineGeometry = new THREE.BoxGeometry(30.3, 30.3, 30.3);
-  const outlineMaterial = new THREE.MeshBasicMaterial({ 
+  const outlineMaterial = new THREE.MeshBasicMaterial({
     color: 0x000000,
-    side: THREE.BackSide 
+    side: THREE.BackSide
   });
   outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
   scene.add(outline);
+}
+
+// Load stool model
+if (loadStool) {
+  const loader = new OBJLoader();
+  loader.load('/models/hocker.obj', (object) => {
+    // Apply IKEA line aesthetic to all meshes in the loaded object
+    object.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        // White material for the stool
+        child.material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+        // Add black edges with angle threshold to hide tessellation
+        const edges = new THREE.EdgesGeometry(child.geometry, 20); // Only show edges > 20 degrees
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        const wireframe = new THREE.LineSegments(edges, lineMaterial);
+        object.add(wireframe);
+      }
+    });
+
+    scene.add(object);
+    console.log('Stool loaded successfully');
+    renderer.render(scene, camera); // Re-render after model loads
+  },
+  (progress) => {
+    console.log('Loading progress:', progress);
+  },
+  (error) => {
+    console.error('Error loading stool:', error);
+  });
 }
 
 // Initial render
@@ -65,19 +97,19 @@ renderer.render(scene, camera);
 // Rotate camera around the object based on scroll
 window.addEventListener('scroll', () => {
   const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-  
+
   // Turntable rotation around Z axis (vertical)
   const angle = initialAngle + (scrollPercent * Math.PI * 2);
-  
+
   // Tilt camera down to look underneath (1.5x speed)
   const heightRange = 80; // From +40 to -40
   const cameraHeight = 50 - (scrollPercent * heightRange);
-  
+
   camera.position.x = Math.cos(angle) * radius;
   camera.position.y = Math.sin(angle) * radius;
   camera.position.z = cameraHeight;
-  
+
   camera.lookAt(0, 0, 0);
-  
+
   renderer.render(scene, camera);
 });
