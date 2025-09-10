@@ -168,7 +168,7 @@ if (loadStool) {
         lineMaterials.push(lineMat);
 
         const lineSegs = new LineSegments2(lineGeom, lineMat);
-        lineSegs.renderOrder = 2; // draw lines after fills
+        lineSegs.renderOrder = 2;
         object.add(lineSegs);
       });
 
