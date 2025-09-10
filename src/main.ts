@@ -1,6 +1,14 @@
 import './style.css';
 import * as THREE from 'three';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
+import { SMAAWeightsShader } from 'three/addons/shaders/SMAAShader.js';
 
 const debug = false;
 const showTestCube = false;
@@ -33,12 +41,42 @@ camera.position.z = initialHeight;
 camera.up.set(0, 0, 1); // Set Z as up instead of Y
 camera.lookAt(0, 0, 0);
 
-// Renderer with 2x supersampling + cylinder lines
-const supersample = 2;
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setSize(window.innerWidth * supersample, window.innerHeight * supersample);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Retina crisp without going crazy
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+// keep this updated:
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  // (if you add postprocessing or Line2, update those sizes too; see below)
+});
+
 canvas.style.width = window.innerWidth + 'px';
 canvas.style.height = window.innerHeight + 'px';
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const smaa = new ShaderPass(SMAAWeightsShader);
+composer.addPass(smaa);
+
+const setComposerSize = () => {
+  const dpr = Math.min(window.devicePixelRatio, 2);
+  const w = Math.floor(window.innerWidth * dpr);
+  const h = Math.floor(window.innerHeight * dpr);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  smaa.material.uniforms['resolution'].value.set(1 / w, 1 / h);
+};
+setComposerSize();
+
+window.addEventListener('resize', setComposerSize);
+
+// render:
+const render = () => composer.render();
+render();
 
 // Debug: Add axis helper
 if (debug) {
@@ -55,7 +93,6 @@ if (showTestCube) {
   cube = new THREE.Mesh(geometry, material);
   scene.add(cube);
 
-  // Black edges
   const edges = new THREE.EdgesGeometry(geometry);
   const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
   wireframe = new THREE.LineSegments(edges, lineMaterial);
@@ -81,11 +118,35 @@ if (loadStool) {
         // White material for the stool
         child.material = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-        // Add black edges with angle threshold to hide tessellation
-        const edges = new THREE.EdgesGeometry(child.geometry, 20); // Only show edges > 20 degrees
-        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-        const wireframe = new THREE.LineSegments(edges, lineMaterial);
-        object.add(wireframe);
+        const edges = new THREE.EdgesGeometry(child.geometry, 20);
+        const lineGeom = new LineSegmentsGeometry().fromEdgesGeometry(edges);
+        // Screen-space linewidth in *pixels* by default (worldUnits: false)
+        const lineMat = new LineMaterial({
+          color: 0x000000,
+          linewidth: 1.0,         // pixels; tweak to taste (e.g., 1.25–2.0)
+          dashed: false,
+          // worldUnits: false,   // default; keeps widths consistent regardless of zoom
+        });
+        // const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        // const wireframe = new THREE.LineSegments(edges, lineMaterial);
+        const updateLineResolution = () => {
+          const w = renderer.domElement.width;
+          const h = renderer.domElement.height;
+          lineMat.resolution.set(w, h);
+        };
+        updateLineResolution();
+        window.addEventListener('resize', updateLineResolution);
+
+        const lineSegs = new LineSegments2(lineGeom, lineMat);
+
+        child.renderOrder = 1;
+        lineSegs.renderOrder = 2; // draw lines last
+        // or set polygonOffset on the white fills:
+        (child.material as THREE.MeshBasicMaterial).polygonOffset = true;
+        (child.material as THREE.MeshBasicMaterial).polygonOffsetFactor = 1;
+        (child.material as THREE.MeshBasicMaterial).polygonOffsetUnits = 1;
+
+        object.add(lineSegs);
       }
     });
 
