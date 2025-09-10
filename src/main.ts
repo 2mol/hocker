@@ -33,7 +33,7 @@ camera.position.z = initialHeight;
 camera.up.set(0, 0, 1); // Set Z as up instead of Y
 camera.lookAt(0, 0, 0);
 
-// Renderer
+// Simple renderer
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 

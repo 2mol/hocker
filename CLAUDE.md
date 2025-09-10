@@ -40,19 +40,24 @@ Create a mini webapp similar to skapa that displays a 3D model exported from Fus
 ## Current Setup Notes
 **Camera & Coordinate System:**
 - Using CAD convention: Z-up (camera.up set to (0,0,1))
-- Orthographic camera for IKEA manual look
+- Perspective camera (was orthographic, changed for better depth)
 - Camera orbits around stationary object (much cleaner than rotating object)
-- Scroll-based camera animation: turntable rotation + height tilt to show underside
-- Initial position calculated to avoid jump: `initialAngle = Math.atan2(50, 50)`
+- Scroll-based camera animation with startOffset/endOffset parameters
+- Initial position must match scroll=0 position to avoid jumps
 
-**Rendering:**
-- White cube with black edges (EdgesGeometry)
-- Thick outline using backside rendering technique (slightly larger black cube)
-- Outline thickness: 0.3 units (cube=30, outline=30.3)
+**Model Loading:**
+- OBJ format from Fusion 360 (no materials needed, delete .mtl)
+- EdgesGeometry with 20° threshold to hide tessellation artifacts
+- Simple white MeshBasicMaterial + black LineBasicMaterial
 
-**Debug:**
-- Set `debug = true` to show axes (Red=X, Green=Y, Blue=Z)
-- HTML overlay shows axis legend
+**Wrong Approach for OBJ Models:**
+- Complex shader pipeline (outline/thicken passes) - detects ALL tessellation edges, not just outlines
+- FXAA post-processing - made lines blurrier, wrong tool for the job
+
+**Currently Simplified (but revisitable):**
+- Just using `antialias: true` for now
+- Basic EdgesGeometry with angle threshold
+- Goal: Still pursuing SVG-like crispness
 
 ## Notes
 - Keep skapa folder untouched as reference
