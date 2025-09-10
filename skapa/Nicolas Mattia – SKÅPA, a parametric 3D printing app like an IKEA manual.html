@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><!-- proper charset --><meta charset="utf-8"><!-- Disable mobile scaling --><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><!-- Use astro view transitions --><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/ClientRouter.astro_astro_type_script_index_0_lang.BHed3Q5p.js" data-astro-exec=""></script><!-- KaTeX for inline math stylesheets --><link rel="stylesheet" href="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous"><!-- Google Fonts --><link rel="preconnect" href="https://fonts.googleapis.com/"><link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin=""><link href="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/css2.css" rel="stylesheet"><!-- RSS feed --><link rel="alternate" type="application/rss+xml" title="nmattia RSS feed" href="https://nmattia.com/rss.xml"><!-- OG, favicons, etc --><meta property="og:title" content="Nicolas Mattia – SKÅPA, a parametric 3D printing app like an IKEA manual"><meta property="og:type" content="article"><meta name="description" content="First introduction to and release of skapa, an app for generating 3D printable models."><meta property="og:description" content="First introduction to and release of skapa, an app for generating 3D printable models."><meta property="og:url" content="https://nmattia.com/posts/2025-03-24-skapa-intro/"><meta property="og:image" content="https://nmattia.com/_astro/skapa-og.BjcX-Kkv.png"><link rel="apple-touch-icon" sizes="180x180" href="https://nmattia.com/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="https://nmattia.com/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="https://nmattia.com/favicon-16x16.png"><link rel="manifest" href="https://nmattia.com/manifest.json"><link rel="mask-icon" href="https://nmattia.com/safari-pinned-tab.svg" color="#fffff8"><meta name="msapplication-TileColor" content="#fffff8"><meta name="theme-color" content="#fffff8"><!-- title --><title>Nicolas Mattia – SKÅPA, a parametric 3D printing app like an IKEA manual</title><link rel="stylesheet" href="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/index.DHhEYUxV.css"><script type="module" src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/page.CPvyyiTs.js" data-astro-exec=""></script><style>div.bluesky-embed{padding-top:2em;padding-bottom:2em}
+</style></head><body> <svg style="display: none;"><symbol id="clipboard-copy"> <path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path><path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path></symbol> </svg> <div class="header"> <div class="nav"> <span class="links"> <a href="https://nmattia.com/">Nicolas Mattia</a> </span> <span class="social"> <a href="https://www.github.com/nmattia" target="_blank" rel="noopener noreferrer"> <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 512 512" fill="currentColor"><title>Logo Github</title><path d="M256 32C132.3 32 32 134.9 32 261.7c0 101.5 64.2 187.5 153.2 217.9a17.56 17.56 0 003.8.4c8.3 0 11.5-6.1 11.5-11.4 0-5.5-.2-19.9-.3-39.1a102.4 102.4 0 01-22.6 2.7c-43.1 0-52.9-33.5-52.9-33.5-10.2-26.5-24.9-33.6-24.9-33.6-19.5-13.7-.1-14.1 1.4-14.1h.1c22.5 2 34.3 23.8 34.3 23.8 11.2 19.6 26.2 25.1 39.6 25.1a63 63 0 0025.6-6c2-14.8 7.8-24.9 14.2-30.7-49.7-5.8-102-25.5-102-113.5 0-25.1 8.7-45.6 23-61.6-2.3-5.8-10-29.2 2.2-60.8a18.64 18.64 0 015-.5c8.1 0 26.4 3.1 56.6 24.1a208.21 208.21 0 01112.2 0c30.2-21 48.5-24.1 56.6-24.1a18.64 18.64 0 015 .5c12.2 31.6 4.5 55 2.2 60.8 14.3 16.1 23 36.6 23 61.6 0 88.2-52.4 107.6-102.3 113.3 8 7.1 15.2 21.1 15.2 42.5 0 30.7-.3 55.5-.3 63 0 5.4 3.1 11.5 11.4 11.5a19.35 19.35 0 004-.4C415.9 449.2 480 363.1 480 261.7 480 134.9 379.7 32 256 32z"></path></svg> </a> <a href="https://bsky.app/profile/nmattia.bsky.social" target="_blank" rel="noopener noreferrer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 812 550" class="nav-icon" fill="currentColor" version="1.1"> <path d="m267.5291 61.4871C340.6747 116.4002 419.3511 227.7411 448.2371 287.4931c28.8882-59.7476 107.5602-171.094 180.708-226.006C681.7231 21.864 767.2371-8.7941 767.2371 88.7616c0 19.4832-11.1705 163.669-17.7221 187.077-22.7733 81.3824-105.7584 102.1394-179.575 89.5763 129.03 21.9604 161.854 94.7012 90.9667 167.442-134.629 138.149-193.501-34.6621-208.593-78.9426-2.7654-8.1177-4.0594-11.9152-4.0785-8.686-.0191-3.2293-1.3131.5684-4.0785 8.686-15.0854 44.2805-73.9563 217.096-208.593 78.9426-70.8884-72.7408-38.0655-145.486 90.9667-167.442-73.8188 12.5631-156.805-8.194-179.575-89.5763-6.5518-23.4102-17.7221-167.596-15.7183-189.7845 0-97.5557 85.5162-66.8976 132-27z"></path> </svg></a> <a href="https://www.printables.com/@nmattia" target="_blank" rel="noopener noreferrer"><svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 35 35" fill="currentColor"><path d="m 5.328 35 l 12.172 -7 L 5.328 21 Z M 17.5 0 L 5.328 7 l 12.172 7 v 14 l 12.172 -7 V 7 Z"></path></svg></a> <a href="mailto:nicolas@nmattia.com" target="_blank" rel="noopener noreferrer"><svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 448 512" fill="currentColor"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--> <path d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zM218 271.7L64.2 172.4C66 156.4 79.5 144 96 144l256 0c16.5 0 30 12.4 31.8 28.4L230 271.7c-1.8 1.2-3.9 1.8-6 1.8s-4.2-.6-6-1.8zm29.4 26.9L384 210.4 384 336c0 17.7-14.3 32-32 32L96 368c-17.7 0-32-14.3-32-32l0-125.6 136.6 88.2c7 4.5 15.1 6.9 23.4 6.9s16.4-2.4 23.4-6.9z"></path></svg></a> </span> </div> </div> <hr class="header-divider"> <div class="content">  <article class="blog-article"> <h1>SKÅPA, a parametric 3D printing app like an IKEA manual</h1> <h4>March 24, 2025</h4> <hr> <img src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/skapa-og.BjcX-Kkv_Z1EgDzg.webp" style="margin: auto; display: block; max-height: 630px;" alt="Blog post social card" loading="lazy" decoding="async" fetchpriority="auto" width="1200" height="630"> <p>This is a mini-release for <a href="https://skapa.build/">Skapa</a>,
+ an app I made for generating 3D-printable models for IKEA Skadis 
+pegboards. This post goes through some of the UI &amp; UX decisions and 
+gives an overview of the tech used for model generation and rendering 
+(with Three.js).</p>
+
+<p><img src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/skapa-wall.B2NECYVo_7OpBn.webp" alt="My Skadis board at home" loading="lazy" decoding="async" fetchpriority="auto" width="4032" height="3024"></p>
+<p><em>My Skadis board at home</em></p>
+<p>First, let’s clarify. <em>Skadis</em> (skådis) is IKEA’s pegboard system, allowing different kinds of boxes and accessories to be mounted on the wall. <em>Skapa</em> (skåpa) is how I named my app, and comes from the Swedish word for “create” or “make” (or so I was led to believe).</p>
+<p>With Skapa you can generate custom boxes for IKEA Skadis. The boxes 
+can be downloaded and 3D-printed. The app is very opinionated and I 
+reserve the right to break anything at any time! It’s a side project 
+I’ve been playing with on &amp; off for a few months — and also an 
+excuse to learn more about 3D graphics.</p>
+<p>To use it, head over to <a href="https://skapa.build/">skapa.build</a>,
+ specify the dimensions (width, height &amp; depth) and click the 
+download button. Open the downloaded file in your slicer of choice 
+(PrusaSlicer team here) and print. Voila!</p>
+<p><img src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/skapa-ui.CMeYAS8L_Z2oM72D.webp" alt="User interface of skapa.build" loading="lazy" decoding="async" fetchpriority="auto" width="2048" height="2536"></p>
+<p><em>The user interface of <a href="https://skapa.build/">https://skapa.build</a></em></p>
+<p>The code is on <a href="https://github.com/nmattia/skapa">GitHub</a> and there is also a <a href="https://www.printables.com/model/1133217-parametric-ikea-skadis-boxes-skadis-pegboard">Printables entry</a> you can check out (and star).</p>
+<p>I’ll briefly describe the interface (and some of the “thinking” 
+behind it), then talk about the tech that makes it possible, and then 
+briefly touch on where I’ll try to take the project.</p>
+<p><em>Nu kör vi!</em> (let’s go!)</p>
+<h2 id="uiux-considerations">UI/UX considerations</h2>
+<blockquote class="admonition">
+<span class="admonition-header">
+<svg viewBox="0 0 16 16" version="1.1" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>
+ Note</span>
+<p>Big disclaimer: This is a side project where I decided to explore 
+every possible rabbit hole and allowed myself to obsess over potentially
+ irrelevant details. I’ve been learning a ton in the process. If 
+something doesn’t look right, <a href="https://github.com/nmattia/nmattia.com/issues/new">let me know</a>!</p>
+</blockquote>
+<p>The base idea (and hopefully most obvious design choice) was to make 
+the app look like an IKEA manual. This was done by sticking to black and
+ white, using big blocky letters with an <strong>Å</strong>, and showing strong, black outlines (more on how this is achieved later).</p>
+<p><img src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/billy.CTtedYK0_Z2j1xRg.webp" alt="IKEA billy manual" loading="lazy" decoding="async" fetchpriority="auto" width="1207" height="1717"></p>
+<p><em>The first page of an IKEA Billy shelf manual</em></p>
+<p>There are a couple of notable differences between Skapa and an actual
+ IKEA manual. First, the app is not paper. Then, the font is <em>not</em>
+ the IKEA font (IKEA Sans) but “Kanit”, which is about as far as I’ll go
+ to try and avoid being sued (IKEA, do reach out if you want to partner 
+though). Another big visual difference is that IKEA uses perspective 
+drawings (at least on the first page of their manuals) whereas Skapa 
+uses orthographic projection (I just like it more).</p>
+<p>Another goal was to have an interface as minimal as possible, so I 
+just spent a lot of time removing buttons and features from the original
+ implementation.</p>
+<p><img src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/skapa-evolution.DFdLlJTo_Z1QQ1L.webp" alt="Evolution of the UI over time" loading="lazy" decoding="async" fetchpriority="auto" width="800" height="480"></p>
+<p><em>The evolution of the UI over time</em></p>
+<h3 id="camera-controls">Camera Controls</h3>
+<p>At some point, someone I showed the app said “So cool! Is that an 
+SVG?”. It’s terribly frustrating to hear someone ask which 2D graphics 
+format you’re using <em>when you poured hours into making a 3D rendering pipeline</em>.
+ So I decided to make sure the user could interact with the model a bit 
+to see it was — actually — 3D. I wanted to avoid full control over the 
+model (no zooming in/out, panning camera, etc). I find those sorts of 
+controls confusing at best, dizzying at worst.</p>
+<p>I settled on simple, vertical rotation when the user drags the part, 
+with the part snapping between two different orientations (try it <a href="https://skapa.build/">here</a>) as well as the part rotating 180 degrees (π rads, for those in the know) when clicked.</p>
+<p>This surfaced some issues on mobile, where the part can take up most 
+of the real estate; by capturing the mouse &amp; touch events to rotate 
+the part, it sometimes became impossible to scroll the page up and down 
+because the “click” would always land on the <code>canvas</code> element (where the part is rendered) and be captured by the rotation “gesture”!</p>
+<p>The workaround here was to only capture events if they landed <em>on the part itself</em>, but not if the event was inside the <code>canvas</code> but <em>not</em> on the part. So satisfying.</p>
+<p><img src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/skapa-touch._k5LhoAu_Z1vbvTn.webp" alt="Skapa touch controls" loading="lazy" decoding="async" fetchpriority="auto" width="732" height="1320"></p>
+<p><em>Satisfying camera controls</em></p>
+<h2 id="behind-the-scenes-with-manifold-3d-threejs-and-shaders">Behind the scenes with manifold-3d, Three.js and shaders</h2>
+<p>There were three major technical challenges: how to generate the model, how to render the model, and how to add the outlines.</p>
+<p>The model generation is done with the <a href="https://github.com/elalish/manifold?tab=readme-ov-file#about-manifold">manifold</a>
+ library. It is a C++ library compiled to Wasm which can be used from 
+the browser (Skapa runs 100% client-side). The manifold library is also 
+published on <code>npm</code>. The nice thing is that everything happens in the browser and Skapa can be distributed as a Single-Page Application.</p>
+<p>Here’s some code that uses manifold to create the box base, i.e. the Skapa part without the clips:</p>
+<div class="code-wrapper"><pre style="background-color:#1E1E1E;color:#D4D4D4;overflow-x:auto" tabindex="0" data-language="typescript" class="astro-code dark-plus"><code><span class="line"><span style="color:#6A9955">// The box (without clips) with origin in the middle of the bottom face</span></span>
+<span class="line"><span style="color:#C586C0">export</span><span style="color:#569CD6"> async</span><span style="color:#569CD6"> function</span><span style="color:#DCDCAA"> base</span><span style="color:#D4D4D4">(</span></span>
+<span class="line"><span style="color:#9CDCFE">  height</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">number</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#9CDCFE">  width</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">number</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#9CDCFE">  depth</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">number</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#9CDCFE">  radius</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">number</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#9CDCFE">  wall</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">number</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#9CDCFE">  bottom</span><span style="color:#D4D4D4">: </span><span style="color:#4EC9B0">number</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#D4D4D4">): </span><span style="color:#4EC9B0">Promise</span><span style="color:#D4D4D4">&lt;</span><span style="color:#4EC9B0">Manifold</span><span style="color:#D4D4D4">&gt; {</span></span>
+<span class="line"><span style="color:#569CD6">  const</span><span style="color:#4FC1FF"> innerRadius</span><span style="color:#D4D4D4"> = </span><span style="color:#9CDCFE">Math</span><span style="color:#D4D4D4">.</span><span style="color:#DCDCAA">max</span><span style="color:#D4D4D4">(</span><span style="color:#B5CEA8">0</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">radius</span><span style="color:#D4D4D4"> - </span><span style="color:#9CDCFE">wall</span><span style="color:#D4D4D4">);</span></span>
+<span class="line"><span style="color:#569CD6">  const</span><span style="color:#4FC1FF"> outer</span><span style="color:#D4D4D4"> = (</span><span style="color:#C586C0">await</span><span style="color:#DCDCAA"> roundedRectangle</span><span style="color:#D4D4D4">([</span><span style="color:#9CDCFE">width</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">depth</span><span style="color:#D4D4D4">], </span><span style="color:#9CDCFE">radius</span><span style="color:#D4D4D4">)).</span><span style="color:#DCDCAA">extrude</span><span style="color:#D4D4D4">(</span></span>
+<span class="line"><span style="color:#9CDCFE">    height</span><span style="color:#D4D4D4">,</span></span>
+<span class="line"><span style="color:#D4D4D4">  );</span></span>
+<span class="line"><span style="color:#569CD6">  const</span><span style="color:#DCDCAA"> innerNeg</span><span style="color:#D4D4D4"> = (</span></span>
+<span class="line"><span style="color:#C586C0">    await</span><span style="color:#DCDCAA"> roundedRectangle</span><span style="color:#D4D4D4">([</span><span style="color:#9CDCFE">width</span><span style="color:#D4D4D4"> - </span><span style="color:#B5CEA8">2</span><span style="color:#D4D4D4"> * </span><span style="color:#9CDCFE">wall</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">depth</span><span style="color:#D4D4D4"> - </span><span style="color:#B5CEA8">2</span><span style="color:#D4D4D4"> * </span><span style="color:#9CDCFE">wall</span><span style="color:#D4D4D4">], </span><span style="color:#9CDCFE">innerRadius</span><span style="color:#D4D4D4">)</span></span>
+<span class="line"><span style="color:#D4D4D4">  )</span></span>
+<span class="line"><span style="color:#D4D4D4">    .</span><span style="color:#DCDCAA">extrude</span><span style="color:#D4D4D4">(</span><span style="color:#9CDCFE">height</span><span style="color:#D4D4D4"> - </span><span style="color:#9CDCFE">bottom</span><span style="color:#D4D4D4">)</span></span>
+<span class="line"><span style="color:#D4D4D4">    .</span><span style="color:#DCDCAA">translate</span><span style="color:#D4D4D4">([</span><span style="color:#B5CEA8">0</span><span style="color:#D4D4D4">, </span><span style="color:#B5CEA8">0</span><span style="color:#D4D4D4">, </span><span style="color:#9CDCFE">bottom</span><span style="color:#D4D4D4">]);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#C586C0">  return</span><span style="color:#9CDCFE"> outer</span><span style="color:#D4D4D4">.</span><span style="color:#DCDCAA">subtract</span><span style="color:#D4D4D4">(</span><span style="color:#9CDCFE">innerNeg</span><span style="color:#D4D4D4">);</span></span>
+<span class="line"><span style="color:#D4D4D4">}</span></span></code></pre><button class="clipboard-copy"><svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16"><use xlink:href="#clipboard-copy"></use></svg></button></div>
+<p>The part (with clips) can be exported as a list of vertices, but they
+ still need to be rendered. For this I decided to go with the venerable <a href="https://threejs.org/">Three.js library</a>.</p>
+<p>Unfortunately Three.js’ “outline” material didn’t allow me to render 
+the part exactly as I wanted; in particular it gave me no control over 
+the thickness of the outline and did not actually add outlines 
+everywhere.</p>
+<p><img src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/skapa-3js-outline-mat.Buya3p7z_Z1egkA1.webp" alt="Three.js' native outline rendering" loading="lazy" decoding="async" fetchpriority="auto" width="1168" height="966"></p>
+<p><em>The model rendered with Three.js’ “outline material”, the <code>EdgesGeometry</code> with a <code>LineMaterial</code>.</em></p>
+<p>Three.js does have pretty nice support for post-processing through its <code>EffectComposer</code>. I followed <a href="https://roystan.net/articles/outline-shader/">this great article</a> by <em>Roystan</em>
+ (originally written for Unity) explaining how to use edge detection on a
+ 3D model to display outlines (it’s super well written with lots of cool
+ examples).</p>
+<p>My implementation uses two different passes, each implemented as a WebGL shader.</p>
+<blockquote>
+<p>WebGL shaders are programs that the browser runs on the GPU. They are
+ generally used for graphics […]. For more information I recommend&nbsp;<a href="https://webglfundamentals.org/">https://webglfundamentals.org/</a>&nbsp;and the&nbsp;<a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial">MDN WebGL tutorial</a>.</p>
+<br>
+<br>
+<p><em>From <a href="https://nmattia.com/posts/2025-01-29-shader-css-properties/">How to Set WebGL Shader Colors with CSS and JavaScript</a></em>.</p>
+</blockquote>
+<p>The first pass implements the edge detection algorithm explained in 
+the article linked above. The edge detection is done by casting a ray 
+for every pixel and figuring out where it lands on the model. It then 
+calculates the <em>depth</em> of that point on the model (i.e. the distance between the camera &amp; the point on the model) and the <em>normal</em>
+ of the model at that point (i.e. the face’s orientation). The resulting
+ depth and normal are then compared to the depth and normal of other 
+pixels close by. If they differ too much from one pixel to the next, 
+then an outline should be shown there and the pixel is given the color 
+“black”. This would create a ~1 pixel outline.</p>
+<p><img src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/skapa-passes.uSlmyCJ3_ZgyuRP.webp" alt="Edge detection illustrated" loading="lazy" decoding="async" fetchpriority="auto" width="2880" height="1800"></p>
+<p>The second pass goes through every pixel on screen again and checks 
+if said pixel is within some distance (say, 5 pixels) of a black 
+(outline) pixel from the first pass. If so, this new pixel is also 
+marked as “outline” and rendered black. This effectively thickens the 
+outline, and is implemented as a second pass for performance reasons.</p>
+<p>Here’s an animation of the depth &amp; normals (I seem to have misplaced the original video):</p>
+
+<div style="max-width: 600px; width: 100%; margin-top: 10px; margin-bottom: 10px; display: flex;" class="bluesky-embed"><iframe data-bluesky-id="746177179126968" src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/3ljsyvltpvk2e.html" width="100%" style="border: medium; display: block; flex-grow: 1; height: 888.5px;" frameborder="0" scrolling="no"></iframe></div> <script async="" src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/embed.js" charset="utf-8" data-astro-exec=""></script> <script data-astro-exec="">
+  document.addEventListener("astro:page-load", () => {
+    if (window.bluesky && window.bluesky.scan) {
+      window.bluesky.scan();
+    }
+  });
+</script>
+<p>That’s it for the tech used; bit of <a href="https://github.com/elalish/manifold">manifold-3d</a>, a dab of <a href="https://threejs.org/">Three.js</a> and some <a href="https://roystan.net/articles/outline-shader/">shading goodness</a>!</p>
+<h2 id="whats-next-for-skapa">What’s next for Skapa</h2>
+<p>It’s been really fun to build and I’ve learned a ton. I didn’t 
+understand how GPUs worked and hadn’t used graphics APIs in years, and 
+I’ll say this: GPUs are crazy powerful (even on a smartphone and a 5 
+year-old MacBook Air) and graphics APIs have become fun to use (see also
+ my other article on <a href="https://nmattia.com/posts/2025-01-29-shader-css-properties/">How to Set WebGL Shader Colors with CSS and JavaScript</a>).
+ I find that what’s happening when using WebGL is much more transparent 
+than OpenGL 15 years ago, which makes it a bit slower to get started but
+ more rewarding &amp; sustainable in the long run. Maybe I also just 
+have more experience than 15 years ago…</p>
+<p>The Skapa project is not complete however and I’ll probably keep 
+working on it every now and then. I’m happy with the UI and the 
+rendering, but there are a couple of things I still want to improve.</p>
+<p>For instance, I’d love to have more models, either for other IKEA 
+products or potentially beyond IKEA. I have a couple of parts in mind 
+but I need to figure out what the app will then look like: Will it be a 
+single page still, with a dropdown to select the part? Or multi page app
+ where each part gets its own page? Should it still be IKEA-themed if 
+it’s not just for IKEA?</p>
+<p><img src="Nicolas%20Mattia%20%E2%80%93%20SKA%CC%8APA,%20a%20parametric%203D%20printing%20app%20like%20an%20IKEA%20manual_files/skadis-collection.I1KFIxn7_29VdM.webp" alt="My Skadis collection on Printables" loading="lazy" decoding="async" fetchpriority="auto" width="2880" height="1800"></p>
+<p><em>Some <a href="https://www.printables.com/@nmattia/collections/2221121">models on Printables</a> I’d like to port to Skapa</em></p>
+<p>I’d also like to add more controls to tweak the generated model’s 
+bottom and wall thickness; all of this is already implemented in the 
+code and previous versions of Skapa did allow to tweak those settings, 
+but I haven’t found a nice way to present them.</p>
+<p>Finally, there are some 3D printing-specific things that could be 
+improved in the current model. One of them is that the generated model 
+requires supports under the clips (most 3D printers, if not all, can’t 
+print in thin air and need something to print <em>on</em>, and 3D 
+printing experts on the internet will reach for the pitchforks when 
+“supports” are mentioned). I have some ideas on how to solve this but 
+changes take more time to implement in code than e.g. in WYSIWYG CAD 
+software.</p>
+<blockquote class="admonition">
+<span class="admonition-header">
+<svg viewBox="0 0 16 16" version="1.1" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>
+ Note</span>
+<p>Update: The parts can now be printed <a href="https://github.com/nmattia/skapa/pull/30">without supports</a>!</p>
+</blockquote>
+<p>Again, code on <a href="https://github.com/nmattia/skapa">GitHub</a>, and printing instructions on <a href="https://www.printables.com/model/1133217-parametric-ikea-skadis-boxes-skadis-pegboard">Printables</a>.</p> <p> <em> <a target="_blank" rel="noopener noreferrer" href="https://bsky.app/profile/nmattia.bsky.social">Let me know</a></em> 
+or
+<em> <a target="_blank" rel="noopener noreferrer" href="https://lobste.rs/s/srwduz/notes_on_building_app_looks_like_ikea">join the discussion</a></em> 
+if you enjoyed this article! You can also <a href="https://buttondown.com/nmattia">subscribe</a> to receive updates.
+</p> <hr>  <p>Here's more on the topic of JavaScript and WebGL:</p> <ul> <li> <a href="https://nmattia.com/posts/2025-01-29-shader-css-properties/"> How to Set WebGL Shader Colors with CSS and JavaScript</a> </li><li> <a href="https://nmattia.com/posts/2023-02-25-astro-suggestions/"> Automatic tag-based article suggestions for blogs and Astro websites</a> </li> </ul>  </article>  </div> <footer> <a href="https://nmattia.com/" target="_blank" rel="noopener noreferrer">© Nicolas Mattia 2025</a> </footer> <script type="module" data-astro-exec="">document.addEventListener("astro:page-load",()=>{document.querySelectorAll("pre.astro-code").forEach(e=>{if(!(e instanceof HTMLElement))return;const n=document.createElement("div");n.classList.add("code-wrapper"),e.parentElement?.insertBefore(n,e),n.append(e);const r=document.createElement("button");r.classList.add("clipboard-copy");const o="http://www.w3.org/2000/svg",t=document.createElementNS(o,"svg");t.setAttribute("aria-hidden","true"),t.setAttribute("height","16"),t.setAttribute("viewBox","0 0 16 16"),t.setAttribute("version","1.1"),t.setAttribute("width","16");const s=document.createElementNS(o,"use");s.setAttributeNS("http://www.w3.org/1999/xlink","href","#clipboard-copy"),t.appendChild(s),r.append(t),n.append(r),r.onclick=()=>navigator.clipboard.writeText(e.innerText)})});</script></body></html>
