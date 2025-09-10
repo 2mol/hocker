@@ -6,6 +6,7 @@ const debug = false;
 const showTestCube = false;
 const loadStool = true;
 const startOffset = 0.42; // Start at this fraction of the full animation
+const endOffset = 0.91; // End at this fraction of the full animation
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
 // Scene setup
@@ -104,9 +105,9 @@ renderer.render(scene, camera);
 window.addEventListener('scroll', () => {
   const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
 
-  // Transform scroll to animation progress: start at startOffset, end at 1.0
-  const normalizationConstant = 1 - startOffset; // Remaining animation range
-  const progress = startOffset + (scrollPercent * normalizationConstant);
+  // Transform scroll to animation progress: start at startOffset, end at endOffset
+  const animationRange = endOffset - startOffset; // Animation range to cover
+  const progress = startOffset + (scrollPercent * animationRange);
 
   // Turntable rotation around Z axis (vertical)
   const angle = baseAngle + (progress * Math.PI * 2);
