@@ -12,7 +12,14 @@ scene.background = new THREE.Color(0xffffff);
 // Using CAD convention: Z is up/down, X is left/right, Y is forward/back
 const aspect = window.innerWidth / window.innerHeight;
 const camera = new THREE.OrthographicCamera(-50 * aspect, 50 * aspect, 50, -50, 0.1, 1000);
-camera.position.set(50, 50, 50);
+
+// Set up camera positioning
+const radius = Math.sqrt(50 * 50 + 50 * 50); // Distance from origin
+const initialAngle = Math.atan2(50, 50); // Angle for position (50, 50)
+
+camera.position.x = Math.cos(initialAngle) * radius;
+camera.position.y = Math.sin(initialAngle) * radius;
+camera.position.z = 50;
 camera.up.set(0, 0, 1); // Set Z as up instead of Y
 camera.lookAt(0, 0, 0);
 
@@ -37,6 +44,15 @@ if (debug) {
   const axesHelper = new THREE.AxesHelper(50);
   scene.add(axesHelper);
   // Red = X axis, Green = Y axis, Blue = Z axis
+  
+  // Simple HTML labels
+  const overlay = document.createElement('div');
+  overlay.innerHTML = `
+    <div style="position: fixed; bottom: 20px; left: 20px; color: black; font-family: monospace;">
+      Red=X, Green=Y, Blue=Z (CAD convention: Z is up)
+    </div>
+  `;
+  document.body.appendChild(overlay);
 }
 
 // Thicker outline using backside rendering
@@ -51,19 +67,18 @@ scene.add(outline);
 // Initial render
 renderer.render(scene, camera);
 
-// Rotate based on scroll
+// Rotate camera around the cube based on scroll
 window.addEventListener('scroll', () => {
   const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-  // With CAD convention: Z is now vertical (turntable), X or Y for tilt
-  const zRotation = scrollPercent * Math.PI * 2; // Turntable rotation (vertical axis)
-  const xRotation = scrollPercent * Math.PI * 3; // Tilt (1.5x speed)
   
-  cube.rotation.z = zRotation;
-  cube.rotation.x = xRotation;
-  wireframe.rotation.z = zRotation;
-  wireframe.rotation.x = xRotation;
-  outline.rotation.z = zRotation;
-  outline.rotation.x = xRotation;
+  // Turntable rotation around Z axis (vertical)
+  const angle = initialAngle + (scrollPercent * Math.PI * 2);
+  
+  camera.position.x = Math.cos(angle) * radius;
+  camera.position.y = Math.sin(angle) * radius;
+  camera.position.z = 50; // Keep same height for now
+  
+  camera.lookAt(0, 0, 0);
   
   renderer.render(scene, camera);
 });
