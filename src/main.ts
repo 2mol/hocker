@@ -6,184 +6,203 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
-import { SMAAWeightsShader } from 'three/addons/shaders/SMAAShader.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 
+// -------------------- Config --------------------
 const debug = false;
 const showTestCube = false;
 const loadStool = true;
-const startOffset = 0.42; // Start at this fraction of the full animation
-const endOffset = 0.91; // End at this fraction of the full animation
-const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+const startOffset = 0.18; // fraction of full turntable sweep
+const endOffset   = 0.91;
 
-// Scene setup
+// -------------------- Canvas / Renderer --------------------
+const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: false, // post AA handles this (EffectComposer)
+  powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+// -------------------- Scene / Camera --------------------
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
-// Perspective camera
-// Using CAD convention: Z is up/down, X is left/right, Y is forward/back
-const aspect = window.innerWidth / window.innerHeight;
-const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+// Z-up (CAD-style)
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+camera.up.set(0, 0, 1);
 
-// Set up camera positioning
-const radius = Math.sqrt(50 * 50 + 50 * 50); // Distance from origin
-const baseAngle = Math.atan2(50, 50); // Base angle for position (50, 50)
+// Turntable geometry
+const radius = Math.hypot(50, 50);
+const baseAngle = Math.atan2(50, 50);
 
-// Calculate initial position based on startOffset
-const initialProgress = startOffset;
-const initialAngle = baseAngle + (initialProgress * Math.PI * 2);
-const initialHeight = 50 - (initialProgress * 80);
+// Initial camera position based on startOffset
+{
+  const initialProgress = startOffset;
+  const initialAngle = baseAngle + initialProgress * Math.PI * 2;
+  const initialHeight = 50 - initialProgress * 80;
+  camera.position.set(
+    Math.cos(initialAngle) * radius,
+    Math.sin(initialAngle) * radius,
+    initialHeight
+  );
+  camera.lookAt(0, 0, 0);
+}
 
-camera.position.x = Math.cos(initialAngle) * radius;
-camera.position.y = Math.sin(initialAngle) * radius;
-camera.position.z = initialHeight;
-camera.up.set(0, 0, 1); // Set Z as up instead of Y
-camera.lookAt(0, 0, 0);
-
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Retina crisp without going crazy
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-// keep this updated:
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  // (if you add postprocessing or Line2, update those sizes too; see below)
-});
-
-canvas.style.width = window.innerWidth + 'px';
-canvas.style.height = window.innerHeight + 'px';
-
+// -------------------- Postprocessing (SMAA) --------------------
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
-const smaa = new ShaderPass(SMAAWeightsShader);
-composer.addPass(smaa);
+const smaaPass = new SMAAPass(
+  window.innerWidth * renderer.getPixelRatio(),
+  window.innerHeight * renderer.getPixelRatio()
+);
+composer.addPass(smaaPass);
 
-const setComposerSize = () => {
-  const dpr = Math.min(window.devicePixelRatio, 2);
-  const w = Math.floor(window.innerWidth * dpr);
-  const h = Math.floor(window.innerHeight * dpr);
-  composer.setSize(window.innerWidth, window.innerHeight);
-  smaa.material.uniforms['resolution'].value.set(1 / w, 1 / h);
-};
-setComposerSize();
-
-window.addEventListener('resize', setComposerSize);
-
-// render:
 const render = () => composer.render();
-render();
 
-// Debug: Add axis helper
+// -------------------- Utilities --------------------
+const updateRendererSizes = () => {
+  const dpr = Math.min(window.devicePixelRatio, 2);
+  renderer.setPixelRatio(dpr);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  smaaPass.setSize(
+    window.innerWidth * dpr,
+    window.innerHeight * dpr
+  );
+};
+
+type LineMatWithRes = LineMaterial & { resolution: THREE.Vector2 };
+
+// Keep track of LineMaterials to refresh their resolution on resize
+const lineMaterials: LineMatWithRes[] = [];
+const updateLineMaterialsResolution = () => {
+  const w = renderer.domElement.width;
+  const h = renderer.domElement.height;
+  for (const mat of lineMaterials) mat.resolution.set(w, h);
+};
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  updateRendererSizes();
+  updateLineMaterialsResolution();
+  render();
+});
+
+// -------------------- Debug axes --------------------
 if (debug) {
   const axesHelper = new THREE.AxesHelper(50);
   scene.add(axesHelper);
 }
 
-// Test cube (for development)
-let cube, wireframe, outline;
+// -------------------- Optional test cube --------------------
 if (showTestCube) {
-  // White cube
   const geometry = new THREE.BoxGeometry(30, 30, 30);
-  const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  cube = new THREE.Mesh(geometry, material);
+  const fill = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const cube = new THREE.Mesh(geometry, fill);
   scene.add(cube);
 
+  // Edges via Line2 (screen-space, crisp)
   const edges = new THREE.EdgesGeometry(geometry);
-  const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-  wireframe = new THREE.LineSegments(edges, lineMaterial);
-  scene.add(wireframe);
-
-  // Thicker outline using backside rendering
-  const outlineGeometry = new THREE.BoxGeometry(30.3, 30.3, 30.3);
-  const outlineMaterial = new THREE.MeshBasicMaterial({
+  const segGeom = new LineSegmentsGeometry().fromEdgesGeometry(edges);
+  const segMat = new LineMaterial({
     color: 0x000000,
-    side: THREE.BackSide
-  });
-  outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+    linewidth: 1.25, // screen pixels
+  }) as LineMatWithRes;
+  segMat.resolution.set(renderer.domElement.width, renderer.domElement.height);
+  lineMaterials.push(segMat);
+
+  const wire = new LineSegments2(segGeom, segMat);
+  wire.renderOrder = 2;
+  scene.add(wire);
+
+  // Backface outline "thick" silhouette
+  const outlineGeom = new THREE.BoxGeometry(30.3, 30.3, 30.3);
+  const outlineMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
+  const outline = new THREE.Mesh(outlineGeom, outlineMat);
+  outline.renderOrder = 0;
   scene.add(outline);
+
+  // Avoid z-fighting on the white fills
+  fill.polygonOffset = true;
+  fill.polygonOffsetFactor = 1;
+  fill.polygonOffsetUnits = 1;
 }
 
-// Load stool model
+// -------------------- Load model & apply "ink" edges --------------------
 if (loadStool) {
   const loader = new OBJLoader();
-  loader.load('/models/hocker.obj', (object) => {
-    // Apply IKEA line aesthetic to all meshes in the loaded object
-    object.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        // White material for the stool
-        child.material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  loader.load(
+    '/models/hocker.obj',
+    (object) => {
+      object.traverse((child) => {
+        if (!(child instanceof THREE.Mesh)) return;
 
-        const edges = new THREE.EdgesGeometry(child.geometry, 20);
+        // White fill
+        const fill = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        fill.polygonOffset = true;
+        fill.polygonOffsetFactor = 1;
+        fill.polygonOffsetUnits = 1;
+        child.material = fill;
+        child.renderOrder = 1;
+
+        // Angular edges only (hide tessellation)
+        const edges = new THREE.EdgesGeometry(child.geometry, 11);
         const lineGeom = new LineSegmentsGeometry().fromEdgesGeometry(edges);
-        // Screen-space linewidth in *pixels* by default (worldUnits: false)
         const lineMat = new LineMaterial({
           color: 0x000000,
-          linewidth: 1.0,         // pixels; tweak to taste (e.g., 1.25–2.0)
-          dashed: false,
-          // worldUnits: false,   // default; keeps widths consistent regardless of zoom
-        });
-        // const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-        // const wireframe = new THREE.LineSegments(edges, lineMaterial);
-        const updateLineResolution = () => {
-          const w = renderer.domElement.width;
-          const h = renderer.domElement.height;
-          lineMat.resolution.set(w, h);
-        };
-        updateLineResolution();
-        window.addEventListener('resize', updateLineResolution);
+          linewidth: 1.25, // screen pixels; tweak 1.0–2.0
+          // worldUnits: false (default) keeps stroke width stable on zoom
+        }) as LineMatWithRes;
+
+        // Important: inform LineMaterial of target resolution
+        lineMat.resolution.set(renderer.domElement.width, renderer.domElement.height);
+        lineMaterials.push(lineMat);
 
         const lineSegs = new LineSegments2(lineGeom, lineMat);
-
-        child.renderOrder = 1;
-        lineSegs.renderOrder = 2; // draw lines last
-        // or set polygonOffset on the white fills:
-        (child.material as THREE.MeshBasicMaterial).polygonOffset = true;
-        (child.material as THREE.MeshBasicMaterial).polygonOffsetFactor = 1;
-        (child.material as THREE.MeshBasicMaterial).polygonOffsetUnits = 1;
-
+        lineSegs.renderOrder = 2; // draw lines after fills
         object.add(lineSegs);
-      }
-    });
+      });
 
-    scene.add(object);
-    console.log('Stool loaded successfully');
-    renderer.render(scene, camera); // Re-render after model loads
-  },
-  (progress) => {
-    console.log('Loading progress:', progress);
-  },
-  (error) => {
-    console.error('Error loading stool:', error);
-  });
+      scene.add(object);
+      console.log('Stool loaded successfully');
+      render();
+    },
+    (progress) => console.log('Loading progress:', progress),
+    (error) => console.error('Error loading stool:', error)
+  );
 }
 
-// Initial render
-renderer.render(scene, camera);
+// -------------------- Initial render --------------------
+updateRendererSizes();
+updateLineMaterialsResolution();
+render();
 
-// Rotate camera around the object based on scroll
+// -------------------- Scroll-driven turntable --------------------
 window.addEventListener('scroll', () => {
-  const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  const maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
+  const scrollPercent = window.scrollY / maxScroll;
 
-  // Transform scroll to animation progress: start at startOffset, end at endOffset
-  const animationRange = endOffset - startOffset; // Animation range to cover
-  const progress = startOffset + (scrollPercent * animationRange);
+  const animationRange = endOffset - startOffset;
+  const progress = startOffset + scrollPercent * animationRange;
 
-  // Turntable rotation around Z axis (vertical)
-  const angle = baseAngle + (progress * Math.PI * 2);
+  const angle = baseAngle + progress * Math.PI * 2;
+  const cameraHeight = 50 - progress * 80;
 
-  // Tilt camera down to look underneath
-  const cameraHeight = 50 - (progress * 80);
-
-  camera.position.x = Math.cos(angle) * radius;
-  camera.position.y = Math.sin(angle) * radius;
-  camera.position.z = cameraHeight;
-
+  camera.position.set(
+    Math.cos(angle) * radius,
+    Math.sin(angle) * radius,
+    cameraHeight
+  );
   camera.lookAt(0, 0, 0);
 
-  renderer.render(scene, camera);
+  render();
 });
