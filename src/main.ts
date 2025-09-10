@@ -59,10 +59,7 @@ const baseAngle = Math.atan2(50, 50);
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
-const smaaPass = new SMAAPass(
-  window.innerWidth * renderer.getPixelRatio(),
-  window.innerHeight * renderer.getPixelRatio()
-);
+const smaaPass = new SMAAPass();
 composer.addPass(smaaPass);
 
 const render = () => composer.render();

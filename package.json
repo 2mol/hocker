@@ -10,7 +10,7 @@
     "format": "prettier ./src ./index.html -w"
   },
   "devDependencies": {
-    "@types/three": "0.173",
+    "@types/three": "0.180.0",
     "typescript": "5.7",
     "vite": "^6.2.5"
   },
@@ -19,7 +19,7 @@
     "fflate": "0.8",
     "manifold-3d": "3.0",
     "prettier": "3.5",
-    "three": "0.173",
+    "three": "0.180.0",
     "twrl": "0.0.4"
   },
   "optionalDependencies": {
