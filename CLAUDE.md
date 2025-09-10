@@ -37,6 +37,23 @@ Create a mini webapp similar to skapa that displays a 3D model exported from Fus
 - Example: No animations/rotations unless specifically requested
 - Build only what's asked for, nothing more
 
+## Current Setup Notes
+**Camera & Coordinate System:**
+- Using CAD convention: Z-up (camera.up set to (0,0,1))
+- Orthographic camera for IKEA manual look
+- Camera orbits around stationary object (much cleaner than rotating object)
+- Scroll-based camera animation: turntable rotation + height tilt to show underside
+- Initial position calculated to avoid jump: `initialAngle = Math.atan2(50, 50)`
+
+**Rendering:**
+- White cube with black edges (EdgesGeometry)
+- Thick outline using backside rendering technique (slightly larger black cube)
+- Outline thickness: 0.3 units (cube=30, outline=30.3)
+
+**Debug:**
+- Set `debug = true` to show axes (Red=X, Green=Y, Blue=Z)
+- HTML overlay shows axis legend
+
 ## Notes
 - Keep skapa folder untouched as reference
 - Build new webapp with identical dependencies and setup
