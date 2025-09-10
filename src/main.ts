@@ -5,6 +5,7 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 const debug = false;
 const showTestCube = false;
 const loadStool = true;
+const startOffset = 0.42; // Start at this fraction of the full animation
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
 // Scene setup
@@ -18,11 +19,16 @@ const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
 // Set up camera positioning
 const radius = Math.sqrt(50 * 50 + 50 * 50); // Distance from origin
-const initialAngle = Math.atan2(50, 50); // Angle for position (50, 50)
+const baseAngle = Math.atan2(50, 50); // Base angle for position (50, 50)
+
+// Calculate initial position based on startOffset
+const initialProgress = startOffset;
+const initialAngle = baseAngle + (initialProgress * Math.PI * 2);
+const initialHeight = 50 - (initialProgress * 80);
 
 camera.position.x = Math.cos(initialAngle) * radius;
 camera.position.y = Math.sin(initialAngle) * radius;
-camera.position.z = 50;
+camera.position.z = initialHeight;
 camera.up.set(0, 0, 1); // Set Z as up instead of Y
 camera.lookAt(0, 0, 0);
 
@@ -98,12 +104,15 @@ renderer.render(scene, camera);
 window.addEventListener('scroll', () => {
   const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
 
-  // Turntable rotation around Z axis (vertical)
-  const angle = initialAngle + (scrollPercent * Math.PI * 2);
+  // Transform scroll to animation progress: start at startOffset, end at 1.0
+  const normalizationConstant = 1 - startOffset; // Remaining animation range
+  const progress = startOffset + (scrollPercent * normalizationConstant);
 
-  // Tilt camera down to look underneath (1.5x speed)
-  const heightRange = 80; // From +40 to -40
-  const cameraHeight = 50 - (scrollPercent * heightRange);
+  // Turntable rotation around Z axis (vertical)
+  const angle = baseAngle + (progress * Math.PI * 2);
+
+  // Tilt camera down to look underneath
+  const cameraHeight = 50 - (progress * 80);
 
   camera.position.x = Math.cos(angle) * radius;
   camera.position.y = Math.sin(angle) * radius;
