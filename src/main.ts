@@ -38,12 +38,13 @@ scene.background = new THREE.Color(0xffffff);
 
 // Z-up (CAD-style)
 const camera = new THREE.PerspectiveCamera(
-  75,
+  60,
   window.innerWidth / window.innerHeight,
   0.1,
   1000
 );
 camera.up.set(0, 0, 1);
+const target = new THREE.Vector3(0, 0, -25);
 
 // Turntable geometry
 const radius = Math.hypot(50, 50);
@@ -59,7 +60,7 @@ const baseAngle = Math.atan2(50, 50);
     Math.sin(initialAngle) * radius,
     initialHeight
   );
-  camera.lookAt(0, 0, 0);
+  camera.lookAt(target);
 }
 
 // -------------------- Render control --------------------
@@ -89,13 +90,13 @@ window.addEventListener('resize', () => {
 // -------------------- Debug axes --------------------
 if (debug) scene.add(new THREE.AxesHelper(50));
 
-// -------------------- Load model & apply “ink” edges (TWO-PASS) --------------------
+// -------------------- Load model & apply "ink" edges (TWO-PASS) --------------------
 if (loadStool) {
   const loader = new OBJLoader();
   loader.load(
     '/models/hocker.obj',
     (object) => {
-      // 1) Collect original meshes only (don’t mutate during traversal)
+      // 1) Collect original meshes only (don't mutate during traversal)
       const meshes: THREE.Mesh[] = [];
       object.traverse((node) => {
         // @ts-ignore isMesh is a runtime flag on three objects
@@ -160,7 +161,7 @@ window.addEventListener('scroll', () => {
     Math.sin(angle) * radius,
     cameraHeight
   );
-  camera.lookAt(0, 0, 0);
+  camera.lookAt(target);
 
   render();
 });
