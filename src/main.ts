@@ -16,7 +16,7 @@ const endOffset = 0.91;
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const renderer = new THREE.WebGLRenderer({
   canvas,
-  antialias: true, // simple MSAA; no postprocessing
+  antialias: true,
   powerPreference: "high-performance",
 });
 
@@ -24,14 +24,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // cap DPR for perf
 renderer.setSize(window.innerWidth, window.innerHeight, false); // don't touch CSS size
 
-// Color space (handles different three versions)
-if ("outputColorSpace" in renderer) {
-  // @ts-ignore
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-} else {
-  // @ts-ignore
-  renderer.outputEncoding = THREE.sRGBEncoding;
-}
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 // -------------------- Scene / Camera --------------------
 const scene = new THREE.Scene();
