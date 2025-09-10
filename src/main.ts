@@ -20,10 +20,6 @@ const renderer = new THREE.WebGLRenderer({
   powerPreference: "high-performance",
 });
 
-// Your CSS sets the canvas size. Only set the internal buffer size here.
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // cap DPR for perf
-renderer.setSize(window.innerWidth, window.innerHeight, false); // don't touch CSS size
-
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 // -------------------- Scene / Camera --------------------
@@ -72,7 +68,6 @@ function updateSizes() {
   const w = renderer.domElement.width;
   const h = renderer.domElement.height;
   for (const m of lineMaterials) m.resolution.set(w, h);
-  camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
 
@@ -153,8 +148,29 @@ if (loadStool) {
 }
 
 // -------------------- Initial render --------------------
-updateSizes();
+function resizeToCanvas() {
+  const { clientWidth: cssW, clientHeight: cssH } = canvas;
+  const dpr = Math.min(window.devicePixelRatio, 1.5);
+
+  renderer.setPixelRatio(dpr);
+  renderer.setSize(cssW, cssH, /* updateStyle */ false);
+
+  camera.aspect = cssW / cssH;
+  camera.updateProjectionMatrix();
+
+  // Update Line2 materials with actual buffer size (in device pixels)
+  const w = renderer.domElement.width;
+  const h = renderer.domElement.height;
+  for (const m of lineMaterials) m.resolution.set(w, h);
+}
+resizeToCanvas()
 render();
+
+const ro = new ResizeObserver(() => {
+  resizeToCanvas();
+  render();
+});
+ro.observe(canvas);
 
 // -------------------- Scroll-driven turntable --------------------
 window.addEventListener("scroll", () => {

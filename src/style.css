@@ -11,12 +11,11 @@ body {
 }
 
 #canvas {
-  display: block;
-  width: 100vw;
-  height: 100vh;
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
+  display: block;
 }
 
 #overlay {
