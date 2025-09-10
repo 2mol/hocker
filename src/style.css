@@ -21,8 +21,8 @@ body {
 
 #overlay {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 10px;
+  left: 10px;
   color: #333;
   padding: 1rem 1.5rem;
   border-radius: 8px;
@@ -38,4 +38,34 @@ body {
 #overlay p {
   font-size: 0.9rem;
   color: #666;
+}
+
+#scrollHint{
+  font-size: x-large;
+  position: fixed;
+  left: 50%;
+  bottom: calc(50px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 10;
+  color: #111;
+  opacity: 0.8;
+  pointer-events: none;
+  transition: opacity .25s ease, visibility .25s ease;
+  animation: scroll-bob 1.2s ease-in-out infinite;
+}
+
+@keyframes scroll-bob {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, 6px); }
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  #scrollHint { animation: none; }
+}
+
+/* Hidden state */
+#scrollHint.is-hidden{
+  opacity: 0;
+  visibility: hidden;
 }

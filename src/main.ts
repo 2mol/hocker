@@ -163,7 +163,7 @@ function resizeToCanvas() {
   const h = renderer.domElement.height;
   for (const m of lineMaterials) m.resolution.set(w, h);
 }
-resizeToCanvas()
+resizeToCanvas();
 render();
 
 const ro = new ResizeObserver(() => {
@@ -195,3 +195,21 @@ window.addEventListener("scroll", () => {
 
   render();
 });
+
+// --- Scroll hint logic ---
+const scrollHint = document.getElementById("scrollHint")!;
+
+function hideScrollHint() {
+  if (!scrollHint) return;
+  scrollHint.classList.add("is-hidden");
+  // remove listener(s) after first hide
+  window.removeEventListener("scroll", onSomeScroll, { passive: true } as any);
+}
+
+function onSomeScroll() {
+  // hide as soon as the page moves a bit
+  if (window.scrollY > 200) hideScrollHint();
+}
+
+scrollHint?.classList.remove("is-hidden");
+window.addEventListener("scroll", onSomeScroll, { passive: true });
