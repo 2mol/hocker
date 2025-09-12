@@ -46,24 +46,24 @@ Create a mini webapp similar to skapa that displays a 3D model exported from Fus
 - Initial position must match scroll=0 position to avoid jumps
 
 **Model Loading:**
-- OBJ format from Fusion 360 (no materials needed, delete .mtl)
-- EdgesGeometry with 20° threshold to hide tessellation artifacts
-- Simple white MeshBasicMaterial + black LineBasicMaterial
+- GLB format from Fusion 360 (cleaner than OBJ, less tessellation)
+- EdgesGeometry with 11° threshold to hide tessellation artifacts
+- Simple white MeshBasicMaterial + black LineMaterial
 
-**Wrong Approach for OBJ Models:**
-- Complex shader pipeline (outline/thicken passes) - detects ALL tessellation edges, not just outlines
-- FXAA post-processing - made lines blurrier, wrong tool for the job
+## Solved: Thick, Crisp Lines with LineSegments2
+**Final Solution:**
+- Use `LineSegments2` with `LineMaterial` from three/addons
+- **Critical**: Must set `resolution` on LineMaterial to renderer's buffer dimensions
+- Dynamic pixel ratio: `Math.min(devicePixelRatio, 1.5)` for performance/quality balance
+- LineWidth of 2 gives good visibility without being too thick
+- Edge threshold of 11° hides tessellation while preserving important edges
 
-**Currently Simplified (but revisitable):**
-- Just using `antialias: true` for now
-- Basic EdgesGeometry with angle threshold
-- Goal: Still pursuing SVG-like crispness
-
-## WIP (Work in Progress)
-**Pursuing Crisper Lines - Options to Try:**
-1. **Higher resolution rendering** - Render at 2x or 4x canvas size, then downscale
-2. **MSAA** - Multi-sample anti-aliasing (different from FXAA)
-3. **Custom line shader** - Write our own that does sub-pixel positioning
+**Key Learning:**
+```typescript
+// This is REQUIRED for LineSegments2 to render properly:
+lineMat.resolution.set(renderer.domElement.width, renderer.domElement.height);
+```
+Without setting resolution, lines won't render at all or render incorrectly
 
 ## Maybe Some Day
 - **SVG overlay** - Extract 3D edges and render as actual SVG on top. Would be truly crisp (real vectors!) but requires projecting 3D edges to 2D paths every frame. Insane but would look amazing.
